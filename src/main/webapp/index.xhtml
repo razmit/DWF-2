@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Autores</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="styles.css"/>
+</h:head>
+<h:body>
+
+<div class="container">
+    <h2 class="mt-4">Lista de autores</h2>
+
+    <br/>
+
+    <!-- Form para añadir un nuevo autor -->
+    <h:form id="authorForm">
+        <h:inputHidden value="#{authorControllerBean.author.idAuthor}" />
+        <div class="form-group">
+            <label for="authorName">Author Name</label>
+            <h:inputText id="authorName" value="#{authorControllerBean.author.nameAuthor}" styleClass="form-control" placeholder="Ingrese nombre del autor"
+            required="true" requiredMessage="Ingrese el nombre">
+            <f:validateRegex pattern="^[A-Za-z\s]+$" /><!-- Sin números -->
+            </h:inputText>
+            <!-- Error message para nombre -->
+            <h:message for="authorName" style="color:red" />
+        </div>
+
+        <div class="form-group">
+            <label for="birthday">Birthday</label>
+            <h:inputText id="birthday" value="#{authorControllerBean.author.birthday}"
+                         styleClass="form-control"
+                         converter="dateConverter"
+                         required="true" requiredMessage="El formato debe ser YYYY-MM-DD">
+            <f:validateRegex pattern="^\d{4}-\d{2}-\d{2}$" /> <!-- Formato YYYY-MM-DD -->
+                <f:validateRegex pattern="^\d+$" /> <!-- Solo números -->
+            </h:inputText>
+            <h:message for="birthday" style="color:red" />
+        </div>
+
+
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number</label>
+            <h:inputText id="phoneNumber" value="#{authorControllerBean.author.phoneNumber}" styleClass="form-control" placeholder="Enter phone number"
+                         required="true" requiredMessage="Debe ingresar un número de teléfono" validatorMessage="Solo se permiten 8 dígitos">
+            <f:validateRegex pattern="^\d{4}-\d{4}$" /> <!-- Formato 1234-5678 -->
+                <f:validateRegex pattern="^\d+$" /> <!-- Solo números -->
+            </h:inputText>
+            <h:message for="phoneNumber" style="color:red" />
+        </div>
+
+        <div class="form-group">
+            <label for="gender">Género</label>
+            <h:selectOneMenu id="gender" value="#{authorControllerBean.author.gender}" styleClass="form-control"
+                             required="true" requiredMessage="Seleccione un género">
+                <f:selectItem itemLabel="Seleccione el género" itemValue="" />
+                <f:selectItem itemLabel="Masculino" itemValue="M" />
+                <f:selectItem itemLabel="Femenino" itemValue="F" />
+            </h:selectOneMenu>
+            <h:message for="gender" style="color:red" />
+        </div>
+
+        <div class="form-group">
+            <label for="literaryGenres">Géneros literarios</label>
+            <h:selectManyMenu id="literaryGenres" value="#{authorControllerBean.selectedGenres}"
+                              styleClass="form-control" converter="literaryGenreConverter"
+                              required="true" requiredMessage="Seleccione al menos una opción">
+                <f:selectItems value="#{literaryGenresControllerBean.genres}"
+                               var="genre"
+                               itemLabel="#{genre.nameLitGenre}"
+                               itemValue="#{genre}" />
+            </h:selectManyMenu>
+            <h:message for="literaryGenres" style="color:red" />
+        </div>
+
+
+        <div class="form-group">
+            <h:commandButton value="Guardar autor" action="#{authorControllerBean.saveAuthorWithGenres()}" styleClass="btn btn-success" >
+            <f:ajax render="authorForm" />
+            </h:commandButton>
+        </div>
+    </h:form>
+
+    <h:dataTable value="#{authorControllerBean.authors}" var="author" styleClass="table table-striped table-bordered">
+        <h:column>
+            <f:facet name="header">IdAutor</f:facet>
+            #{author.idAuthor}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Nombre</f:facet>
+            #{author.nameAuthor}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Fecha de nacimiento</f:facet>
+            #{author.birthday}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header"># Teléfono</f:facet>
+            #{author.phoneNumber}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Género Literario</f:facet>
+            <ui:repeat value="#{author.literaryGenres}" var="genre">
+                <span class="badge badge-primary">#{genre.nameLitGenre}</span> <!-- Muestra género literario asociado al autor-->
+            </ui:repeat>
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Acciones</f:facet>
+            <!-- Edit  -->
+            <h:commandButton value="Editar" action="#{authorControllerBean.loadAuthorForEdit(author.idAuthor)}"
+                             styleClass="btn btn-warning btn-sm">
+                <f:ajax render="@form" />
+            </h:commandButton>
+            <!-- Delete -->
+            <h:commandButton value="Borrar" action="#{authorControllerBean.deleteAuthor(author.idAuthor)}"
+                             styleClass="btn btn-danger btn-sm">
+                <f:ajax render="@form" />
+            </h:commandButton>
+        </h:column>
+    </h:dataTable>
+</div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" type="javascript"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" type="javascript"></script>
+<!--    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" type="javascript"></script> -->
+    <script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" type="javascript"></script>
+
+</h:body>
+
+
+</html>

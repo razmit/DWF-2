@@ -1,17 +1,47 @@
-package com.desaf2.dao;
+package com.dwf.dwf2.dao;
 
-import com.desaf2.model.AuthorModel;
+import com.dwf.dwf2.model.AuthorModel;
+import com.dwf.dwf2.model.LiteraryGenreModel;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Persistence;
 
 import java.util.List;
 
+@ApplicationScoped
 public class AuthorDAO {
 
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory(("AuthorsPU"));
 
-    // CRUD
+    private EntityManagerFactory emf;
+
+    public AuthorDAO() {
+        // Initialize EntityManagerFactory with the persistence unit name
+        this.emf = Persistence.createEntityManagerFactory("AuthorsPU");
+    }
+
+    // CRUDs
+
+    public void saveAuthorAndGenre(AuthorModel author, LiteraryGenreModel genre) {
+
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        try {
+            author.getLiteraryGenres().add(genre); // Género con autor
+
+            //Guarda el autor
+            em.persist(author);
+            em.getTransaction().commit();
+
+        }catch (Exception e){
+            em.getTransaction().rollback();
+            throw e;
+        }finally {
+            em.close();
+        }
+    }
+
     public void createAuthor(AuthorModel author) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
@@ -48,9 +78,7 @@ public class AuthorDAO {
 
     public List<AuthorModel> findAllAuthors(){
         EntityManager em = emf.createEntityManager();
-        List<AuthorModel> authors = em.createQuery("SELECT a FROM AuthorModel a", AuthorModel.class).getResultList();
-        em.close();
-        return authors;
+        return em.createQuery("SELECT a FROM AuthorModel a", AuthorModel.class).getResultList();
     }
 
 }

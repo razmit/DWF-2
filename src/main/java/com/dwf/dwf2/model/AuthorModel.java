@@ -1,10 +1,12 @@
-package com.desaf2.model;
+package com.dwf.dwf2.model;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -34,13 +36,25 @@ public class AuthorModel {
     @Column(name = "gender", nullable = false)
     private String gender;
 
-    @ManyToMany
+    // Temporary single genre field for JSF submission
+    @Transient
+    private LiteraryGenreModel selectedGenre;
+
+    @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
             name = "authorgenre",
             joinColumns = @JoinColumn(name = "idAuthor"),
             inverseJoinColumns = @JoinColumn(name = "idLitGenre")
     )
-    private Set<LiteraryGenreModel> literaryGenres;
+    private Set<LiteraryGenreModel> literaryGenres = new HashSet<>();
+
+    public LiteraryGenreModel getSelectedGenre() {
+        return selectedGenre;
+    }
+
+    public void setSelectedGenre(LiteraryGenreModel selectedGenre) {
+        this.selectedGenre = selectedGenre;
+    }
 
     public Long getIdAuthor() {
         return idAuthor;
@@ -80,5 +94,13 @@ public class AuthorModel {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public Set<LiteraryGenreModel> getLiteraryGenres() {
+        return literaryGenres;
+    }
+
+    public void setLiteraryGenres(Set<LiteraryGenreModel> literaryGenres) {
+        this.literaryGenres = literaryGenres;
     }
 }
